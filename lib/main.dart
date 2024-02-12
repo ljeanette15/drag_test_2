@@ -22,14 +22,65 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> {
-  Color caughtColor = Colors.grey;
+  // TO DO: Make a list that holds each block's positions. Also make each block
+  //        have a unique index that it carries as its data. When that block is
+  //        accepted by a DragTarget, the dragtarget updates the position list
+  //        at the index of that block
+  
+  Offset pos1 = Offset(0.0, 0.0);
+  Offset pos2 = Offset(100.0, 0.0);
 
   @override
   Widget build(BuildContext context) {
-    return const Stack(
+    return Stack(
       children: <Widget>[
-        DragBox(Offset(0.0, 0.0), Colors.orange),
-        DragBox(Offset(100.0, 0.0), Colors.teal),
+
+        // Grid spot 1
+        Positioned(
+          left: 200.0,
+          top: 100.0,
+          child: DragTarget(
+            onAccept: (Offset pos) {
+              setState(() {
+                pos1 = Offset(200.0, 100.0);
+              });
+            },
+            builder: (
+              BuildContext context,
+              List<dynamic> accepted,
+              List<dynamic> rejected,
+            ) {
+              return RoundBox(itemColor: Colors.grey);
+            }
+          ),
+        ),
+
+        // Grid spot 2
+        Positioned(
+          left: 300.0,
+          top: 100.0,
+          child: DragTarget(
+            onAccept: (Offset pos) {
+              setState(() {
+                pos1 = Offset(300.0, 100.0);
+              });
+            },
+            builder: (
+              BuildContext context,
+              List<dynamic> accepted,
+              List<dynamic> rejected,
+            ) {
+              return RoundBox(itemColor: Colors.grey);
+            }
+          ),
+        ),
+
+        // Draggable Box 1
+        DragBox(pos1, Colors.orange),
+
+        // Draggable Box 2
+        DragBox(pos2, Colors.teal),
+
       ],
     );
   }
@@ -84,10 +135,19 @@ class DragBoxState extends State<DragBox> {
       left: position.dx,
       top: position.dy,
       child: Draggable(
-        data: widget.itemColor,
+        data: position,
+        onDragCompleted: () {
+          setState(() {
+          });
+        },
         onDraggableCanceled: (velocity, offset) {
           setState(() {
-            position = offset;
+            position = widget.initPos;
+          });
+        },
+        onDragEnd: (dragDetails) {
+          setState(() {
+            position = widget.initPos;
           });
         },
         feedback: RoundBox(itemColor: widget.itemColor.withOpacity(0.2)),
