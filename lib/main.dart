@@ -22,10 +22,9 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> {
-  // TO DO: Make a list that holds each block's positions. Also make each block
-  //        have a unique index that it carries as its data. When that block is
-  //        accepted by a DragTarget, the dragtarget updates the position list
-  //        at the index of that block
+  // TO DO: DragTarget is correctly accepting the Draggable, but the position is not being updated. The target
+  //         accepts based on where the cursor is. Somehow the position is not being passed correctly. It seems
+  //         like the square is being rendered before the array is updated?
   
   var pos = List<Offset>.generate(2, (int index) => Offset(index.toDouble() * 100.0, 0.0), growable: false);
   final initPos = List<Offset>.generate(2, (int index) => Offset(index.toDouble() * 100.0, 0.0));
@@ -40,6 +39,8 @@ class AppState extends State<App> {
           left: 300.0,
           top: 300.0,
           child: DragTarget(
+            onLeave: (ID) {
+            },
             onAccept: (int ID) {
               setState(() {
                 pos[ID] = Offset(300.0, 300.0);
@@ -50,7 +51,7 @@ class AppState extends State<App> {
               List<dynamic> accepted,
               List<dynamic> rejected,
             ) {
-              return RoundBox(itemColor: Colors.grey);
+              return RoundBox(itemColor: Colors.grey, width: 100.0);
             }
           ),
         ),
@@ -70,7 +71,7 @@ class AppState extends State<App> {
               List<dynamic> accepted,
               List<dynamic> rejected,
             ) {
-              return RoundBox(itemColor: Colors.grey);
+              return RoundBox(itemColor: Colors.grey, width: 100.0);
             }
           ),
         ),
@@ -89,17 +90,19 @@ class AppState extends State<App> {
 // Class for each box that will be dragged around
 class RoundBox extends StatelessWidget {
   final Color itemColor;
+  final double width;
 
   const RoundBox({
     super.key,
     required this.itemColor,
+    required this.width,
     });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 100.0,
-      height: 100.0,
+      width: width,
+      height: width,
       decoration: BoxDecoration(
         color: itemColor,
         borderRadius: BorderRadius.circular(5)
@@ -140,20 +143,15 @@ class DragBoxState extends State<DragBox> {
         data: widget.identifier,
         onDragCompleted: () {
           setState(() {
-          });
-        },
-        onDraggableCanceled: (velocity, offset) {
-          setState(() {
-            position = widget.initPos;
-          });
-        },
-        onDragEnd: (dragDetails) {
-          setState(() {
+            print("POS: ${widget.pos}");
             position = widget.pos;
           });
         },
-        feedback: RoundBox(itemColor: widget.itemColor.withOpacity(0.2)),
-        child: RoundBox(itemColor: widget.itemColor),
+        onDraggableCanceled: (velocity, offset) {
+            print("CANCELLED");
+        },
+        feedback: RoundBox(itemColor: widget.itemColor.withOpacity(0.2), width: 85.0),
+        child: RoundBox(itemColor: widget.itemColor, width: 100.0),
       )
     );
   }
