@@ -27,8 +27,8 @@ class AppState extends State<App> {
   //        accepted by a DragTarget, the dragtarget updates the position list
   //        at the index of that block
   
-  Offset pos1 = Offset(0.0, 0.0);
-  Offset pos2 = Offset(100.0, 0.0);
+  var pos = List<Offset>.generate(2, (int index) => Offset(index.toDouble() * 100.0, 0.0), growable: false);
+  final initPos = List<Offset>.generate(2, (int index) => Offset(index.toDouble() * 100.0, 0.0));
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +37,12 @@ class AppState extends State<App> {
 
         // Grid spot 1
         Positioned(
-          left: 200.0,
-          top: 100.0,
+          left: 300.0,
+          top: 300.0,
           child: DragTarget(
-            onAccept: (Offset pos) {
+            onAccept: (int ID) {
               setState(() {
-                pos1 = Offset(200.0, 100.0);
+                pos[ID] = Offset(300.0, 300.0);
               });
             },
             builder: (
@@ -57,12 +57,12 @@ class AppState extends State<App> {
 
         // Grid spot 2
         Positioned(
-          left: 300.0,
-          top: 100.0,
+          left: 700.0,
+          top: 300.0,
           child: DragTarget(
-            onAccept: (Offset pos) {
+            onAccept: (int ID) {
               setState(() {
-                pos1 = Offset(300.0, 100.0);
+                pos[ID] = Offset(700.0, 300.0);
               });
             },
             builder: (
@@ -76,10 +76,10 @@ class AppState extends State<App> {
         ),
 
         // Draggable Box 1
-        DragBox(pos1, Colors.orange),
+        DragBox(initPos[0], pos[0], Colors.orange, 0),
 
         // Draggable Box 2
-        DragBox(pos2, Colors.teal),
+        DragBox(initPos[1], pos[1], Colors.teal, 1),
 
       ],
     );
@@ -111,9 +111,11 @@ class RoundBox extends StatelessWidget {
 // Class for the dragged boxes
 class DragBox extends StatefulWidget {
   final Offset initPos;
+  final Offset pos;
   final Color itemColor;
+  final int identifier;
 
-  const DragBox(this.initPos, this.itemColor);
+  const DragBox(this.initPos, this.pos, this.itemColor, this.identifier);
 
   @override
   DragBoxState createState() => DragBoxState();
@@ -126,7 +128,7 @@ class DragBoxState extends State<DragBox> {
   @override
   void initState() {
     super.initState();
-    position = widget.initPos;
+    position = widget.pos;
   }
 
   @override
@@ -135,7 +137,7 @@ class DragBoxState extends State<DragBox> {
       left: position.dx,
       top: position.dy,
       child: Draggable(
-        data: position,
+        data: widget.identifier,
         onDragCompleted: () {
           setState(() {
           });
@@ -147,7 +149,7 @@ class DragBoxState extends State<DragBox> {
         },
         onDragEnd: (dragDetails) {
           setState(() {
-            position = widget.initPos;
+            position = widget.pos;
           });
         },
         feedback: RoundBox(itemColor: widget.itemColor.withOpacity(0.2)),
