@@ -127,15 +127,21 @@ class DragBox extends StatefulWidget {
 // State for the box that's being dragged around
 class DragBoxState extends State<DragBox> {
   Offset position = const Offset(0.0, 0.0);
+  bool cancelled = false;
 
-  @override
-  void initState() {
-    super.initState();
-    position = widget.pos;
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   position = widget.pos;
+  // }
 
   @override
   Widget build(BuildContext context) {
+    if(cancelled == true){
+      position = widget.initPos;
+    } else {
+      position = widget.pos;
+    }
     return Positioned(
       left: position.dx,
       top: position.dy,
@@ -143,12 +149,14 @@ class DragBoxState extends State<DragBox> {
         data: widget.identifier,
         onDragCompleted: () {
           setState(() {
-            print("POS: ${widget.pos}");
+            cancelled = false;
             position = widget.pos;
           });
         },
         onDraggableCanceled: (velocity, offset) {
-            print("CANCELLED");
+          setState(() {
+            cancelled = true;
+          });
         },
         feedback: RoundBox(itemColor: widget.itemColor.withOpacity(0.2), width: 85.0),
         child: RoundBox(itemColor: widget.itemColor, width: 100.0),
