@@ -163,5 +163,4 @@ class DragBoxState extends State<DragBox> {
       )
     );
   }
-
 }
